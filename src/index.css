@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@layer utilities {
+  .font-urdu {
+    font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Arabic Typesetting', Tahoma, system-ui, sans-serif;
+  }
+
+  .obsidian-ambient-bg {
+    background-color: #090D16;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 85% -10%, rgba(249, 115, 22, 0.12), transparent 60%),
+      radial-gradient(ellipse 70% 45% at 10% 10%, rgba(132, 204, 22, 0.08), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 50% 95%, rgba(244, 63, 94, 0.06), transparent 60%),
+      radial-gradient(rgba(148, 163, 184, 0.11) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 26px 26px;
+    background-attachment: fixed;
+  }
+
+  .glass-panel {
+    background-color: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@keyframes scan-laser {
+  0% {
+    transform: translateY(0%);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(240px);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 0.25;
+  }
+}
+
+.animate-scan-laser {
+  animation: scan-laser 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scan-laser {
+    animation: none;
+    opacity: 0.6;
+  }
+}
