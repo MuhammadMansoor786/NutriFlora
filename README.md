@@ -119,11 +119,12 @@ npx tsx --test src/utils/nutrition.test.ts src/utils/imageCompression.test.ts sr
 ├── database/
 │   └── schema.sql               # MySQL schema and the default admin account
 ├── public/images/               # Static image assets
-├── server.ts                    # Express REST API + Gemini AI + Vite middleware
+├── server.ts                    # Local startup and Vite middleware
 ├── src/
 │   ├── App.tsx                  # Main application shell, state & toast notifications
 │   ├── components/              # UI modules (AiScanner, ProduceGallery, ProduceCompare, etc.)
 │   ├── server/
+│   │   ├── app.ts               # Shared Express REST API and Gemini AI integration
 │   │   └── db.ts                # MySQL connection pool and database queries
 │   ├── services/api.ts          # Typed REST API client with JWT Bearer support
 │   ├── types/produce.ts         # Shared TypeScript interfaces
