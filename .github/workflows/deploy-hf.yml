@@ -1,0 +1,22 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Force-push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git -c http.extraheader="AUTHORIZATION: Basic $(printf 'user:%s' "$HF_TOKEN" | base64 | tr -d '\n')" \
+            push --force https://huggingface.co/spaces/MuhammadMansoor786/NutriFlora HEAD:main

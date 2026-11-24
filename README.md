@@ -1,3 +1,13 @@
+---
+title: NutriFlora
+emoji: 🌿
+colorFrom: green
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # NutriFlora — AI Fruit & Vegetable Recognition and Clinical Health Information System
 
 NutriFlora is a full-stack web application that identifies produce from uploaded or camera-captured photos and stores recognition results, catalog entries, accounts, and bookmarks in MySQL.
@@ -23,6 +33,12 @@ NutriFlora is a full-stack web application that identifies produce from uploaded
 - **Backend**: Node.js, Express, `tsx`, Multer, `bcryptjs`, `jsonwebtoken` (`JWT`)
 - **AI Engine**: `@google/genai` (`gemini-2.5-flash` multimodal structured JSON output)
 - **Database**: XAMPP MySQL / MariaDB (`mysql2/promise`); API requests return HTTP 503 when MySQL is offline
+
+---
+
+## Hugging Face Spaces Deployment
+
+The Docker Space listens on port `7860`. Add a Hugging Face access token with write permission as the GitHub repository secret `HF_TOKEN`; each push to `main` force-syncs that branch to the Space. Configure `GEMINI_API_KEY`, `JWT_SECRET`, and the Cloud MySQL `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` values in the Space secrets. Set `DB_SSL=true` when the database provider requires TLS.
 
 ---
 

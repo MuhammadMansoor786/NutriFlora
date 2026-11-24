@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -14,14 +15,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'nutriflora-dev-jwt-secret-change-in-prod';
 const MYSQL_OFFLINE_ERROR = 'MySQL database is offline. Please start MySQL in XAMPP.';
+let databaseInitialization: ReturnType<typeof db.init> | undefined;
+
+function initializeDatabase() {
+  if (!databaseInitialization) {
+    databaseInitialization = db.init();
+  }
+  return databaseInitialization;
+}
 
 // Middleware for parsing large base64 image uploads
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api', async (_req: Request, res: Response, next: NextFunction) => {
+  await initializeDatabase();
   if (!(await db.checkConnection())) {
     return res.status(503).json({ success: false, error: MYSQL_OFFLINE_ERROR });
   }
@@ -858,31 +869,36 @@ app.get('/api/admin/stats', requireAdmin, async (_req: Request, res: Response) =
   }
 });
 
-// Production / Dev handling with Vite
-async function startServer() {
-  await db.init();
+app.use('/api', (_req: Request, res: Response) => {
+  res.status(404).json({ success: false, error: 'API route not found.' });
+});
 
-  if (process.env.NODE_ENV === 'production') {
-    // Serve production build files
-    app.use(express.static(path.join(__dirname, 'dist')));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+export default app;
+
+if (!process.env.VERCEL) {
+  async function startServer() {
+    await initializeDatabase();
+
+    if (process.env.NODE_ENV === 'production') {
+      app.use(express.static(path.join(__dirname, 'dist')));
+      app.get('*', (_req, res) => {
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+      });
+    } else {
+      const { createServer } = await import('vite');
+      const vite = await createServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running at http://localhost:${PORT}`);
     });
-  } else {
-    // Vite dev server middleware
-    const { createServer } = await import('vite');
-    const vite = await createServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  startServer().catch((err) => {
+    console.error('Failed to start server:', err);
   });
 }
-
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-});
