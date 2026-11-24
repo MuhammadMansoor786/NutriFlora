@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
@@ -10,9 +8,6 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { db, normalizeCategory } from './src/server/db.ts';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -875,23 +870,16 @@ app.use('/api', (_req: Request, res: Response) => {
 
 export default app;
 
-if (!process.env.VERCEL) {
+if (!process.env.NETLIFY && !process.env.VERCEL && process.env.NODE_ENV !== 'production') {
   async function startServer() {
     await initializeDatabase();
 
-    if (process.env.NODE_ENV === 'production') {
-      app.use(express.static(path.join(__dirname, 'dist')));
-      app.get('*', (_req, res) => {
-        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-      });
-    } else {
-      const { createServer } = await import('vite');
-      const vite = await createServer({
-        server: { middlewareMode: true },
-        appType: 'spa',
-      });
-      app.use(vite.middlewares);
-    }
+    const { createServer } = await import('vite');
+    const vite = await createServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running at http://localhost:${PORT}`);
